@@ -1,6 +1,7 @@
 import { v4 as uuid } from 'uuid';
 import { NewUserEntity } from '../types';
 import { AppError } from '../utils/error';
+import { pool } from '../utils/db';
 
 export class UserRecord {
   private readonly id: string;
@@ -35,5 +36,14 @@ export class UserRecord {
 
   get familyName() {
     return this.family;
+  }
+
+  public async insert(): Promise<string> {
+    await pool.execute('INSERT INTO `users` VALUES (:id, :name, :family);', {
+      id: this.id,
+      name: this.name,
+      family: this.family,
+    });
+    return this.id;
   }
 }
