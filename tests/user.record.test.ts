@@ -5,6 +5,7 @@ import { UserRecord } from '../records/user.record';
 const defaultObj: NewUserEntity = {
   name: 'Tester',
   family: 'Testowa',
+  password: 'validpass1%',
 };
 
 it('should build UserRecord', () => {
