@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import {Request, Response, NextFunction} from 'express';
 
 export class AppError extends Error {
     constructor(public message: string, public statusCode: number) {
