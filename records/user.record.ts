@@ -1,6 +1,6 @@
 import { v4 as uuid } from 'uuid';
 import { FieldPacket, ResultSetHeader } from 'mysql2';
-import { NewUserEntity } from '../types';
+import { NewUserEntity, UserRole } from '../types';
 import { AppError } from '../utils/error';
 import { pool } from '../utils/db';
 import {
@@ -18,6 +18,7 @@ export class UserRecord {
   private family: string;
   private passwordHash?: string;
   private currentTokenId: string | null;
+  private readonly role: UserRole;
 
   constructor(obj: NewUserEntity) {
     this.id = obj.id ?? uuid();
@@ -77,13 +78,17 @@ export class UserRecord {
     this.currentTokenId = tokenId;
   }
 
+  get userRole() {
+    return this.role;
+  }
+
   public async insert(): Promise<string> {
     if (await this.isEmailTaken(this.email)) {
       throw new AppError(`Email ${this.email} is already taken!`, 400);
     }
 
     await pool.execute(
-      'INSERT INTO `users` VALUES (:id, :name, :email, :family, :password_hash, :current_token_id);',
+      'INSERT INTO `users` VALUES (:id, :name, :email, :family, :password_hash, :current_token_id, :role);',
       {
         id: this.id,
         name: this.name,
@@ -91,6 +96,7 @@ export class UserRecord {
         family: this.family,
         password_hash: this.passwordHash,
         current_token_id: this.userCurrentTokenId,
+        role: this.role,
       },
     );
     return this.id;
@@ -132,14 +138,16 @@ export class UserRecord {
     return results.affectedRows === 1;
   }
 
-  public static async findOneByCredentials(email: string, password: string): Promise<UserRecord> | null {
-
+  public static async findOneByCredentials(
+    email: string,
+    password: string,
+  ): Promise<UserRecord> | null {
     const [results] = (await pool.execute(
-        'SELECT `id`, `name`, `email`, `current_token_id` FROM `users` WHERE `email` = :email AND `password_hash` = :passwordHash;',
-        {
-          email,
-          passwordHash: hashPassword(password),
-        },
+      'SELECT `id`, `name`, `email`, `current_token_id`, `role` FROM `users` WHERE `email` = :email AND `password_hash` = :passwordHash;',
+      {
+        email,
+        passwordHash: hashPassword(password),
+      },
     )) as UserRecordResults;
 
     return results.length === 0 ? null : new UserRecord(results[0]);
