@@ -1,9 +1,23 @@
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import 'express-async-errors';
-import { handleError } from "./utils/error";
+import './utils/db';
+import './auth/jwt.stategy';
+import { config } from './config/config';
+import { handleError, handleNotFound } from './utils/error';
+import { userRouter } from './routers/user.router';
 
 const app = express();
 
+app.use(express.json());
+app.use(cookieParser());
+
+app.use('/user', userRouter);
+
+app.use(handleNotFound);
+
 app.use(handleError);
 
-app.listen(3000,'127.0.0.1', () => console.log('server is running on port 3000'));
+app.listen(config.port, '127.0.0.1', () =>
+  console.log(`server is running on port ${config.port}`),
+);

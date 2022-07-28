@@ -12,14 +12,20 @@
   "author": "Dominik Drozd",
   "license": "ISC",
   "dependencies": {
+    "cookie-parser": "^1.4.6",
     "express": "^4.18.1",
     "express-async-errors": "^3.1.1",
+    "jsonwebtoken": "^8.5.1",
     "mysql2": "^2.3.3",
+    "passport": "^0.6.0",
+    "passport-jwt": "^4.0.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "@types/cookie-parser": "^1.4.3",
     "@types/express": "^4.17.13",
     "@types/node": "^18.6.1",
+    "@types/passport-jwt": "^3.0.6",
     "@types/uuid": "^8.3.4",
     "prettier": "^2.7.1",
     "ts-node": "^10.8.2",
