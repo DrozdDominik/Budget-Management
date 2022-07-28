@@ -1,5 +1,9 @@
 import { it, expect, describe } from 'vitest';
-import {isEmailValid, isPasswordValid} from '../utils/auxiliaryMethods';
+import {
+  isEmailValid,
+  isPasswordValid,
+  trimAndChangeFirstLetterToUppercaseAndOtherToLowercase,
+} from '../utils/auxiliaryMethods';
 
 describe('isPasswordValid()', () => {
   it('should returns false if provided password is to short', () => {
@@ -50,5 +54,16 @@ describe('isEmailValid()', () => {
     const result = isEmailValid(validEmail);
 
     expect(result).toBe(true);
+  });
+});
+
+describe('trimAndChangeFirstLetterToUppercaseAndOtherToLowercase()', () => {
+  it('should trim and make first letter uppercase and rest of letters lowercase', () => {
+    const testName = '  teStOwA ';
+
+    const result =
+      trimAndChangeFirstLetterToUppercaseAndOtherToLowercase(testName);
+
+    expect(result).toBe('Testowa');
   });
 });
