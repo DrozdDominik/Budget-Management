@@ -22,7 +22,18 @@ describe('FamilyRecord constructor', () => {
     };
 
     expect(() => new FamilyRecord(invalidObj)).toThrowError(
-      /^Budget must not be lesser then zero.$/,
+      /^Budget must be between 0 and 9999999.$/,
+    );
+  });
+
+  it('should throw AppError when provided budget greater than 9999999', () => {
+    const invalidObj: NewFamilyEntity = {
+      ...defaultObj,
+      budget: 10000000,
+    };
+
+    expect(() => new FamilyRecord(invalidObj)).toThrowError(
+        /^Budget must be between 0 and 9999999.$/,
     );
   });
 

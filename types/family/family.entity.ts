@@ -3,3 +3,7 @@ export interface NewFamilyEntity {
   name: string;
   budget?: number;
 }
+
+export interface FamilyEntityId {
+  id: string;
+}
