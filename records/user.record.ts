@@ -52,6 +52,7 @@ export class UserRecord {
     if (obj.password) {
       this.passwordHash = hashPassword(obj.password);
     }
+    this.role = obj.role ?? UserRole.User;
   }
 
   get userId() {

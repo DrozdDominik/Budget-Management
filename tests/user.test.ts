@@ -8,6 +8,7 @@ const defaultObj: NewUserEntity = {
   email: 'test@example.com',
   family: 'Testowa',
   password: 'validpass1%',
+
 };
 
 afterAll(async () => {
