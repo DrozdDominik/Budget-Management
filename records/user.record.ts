@@ -8,6 +8,7 @@ import {
   isEmailValid,
   isPasswordValid,
 } from '../utils/auxiliaryMethods';
+import { FamilyRecord } from './family.record';
 
 type UserRecordResults = [NewUserEntity[], FieldPacket[]];
 
@@ -88,13 +89,20 @@ export class UserRecord {
       throw new AppError(`Email ${this.email} is already taken!`, 400);
     }
 
+    let family = await FamilyRecord.getFamilyByName(this.familyName);
+
+    if (family === null) {
+      family = new FamilyRecord({ name: this.familyName });
+      await family.insert();
+    }
+
     await pool.execute(
-      'INSERT INTO `users` VALUES (:id, :name, :email, :family, :password_hash, :current_token_id, :role);',
+      'INSERT INTO `users` VALUES (:id, :name, :email, :family_id, :password_hash, :current_token_id, :role);',
       {
         id: this.id,
         name: this.name,
         email: this.email,
-        family: this.family,
+        family_id: family.familyId,
         password_hash: this.passwordHash,
         current_token_id: this.userCurrentTokenId,
         role: this.role,
@@ -118,7 +126,10 @@ export class UserRecord {
     token: string,
   ): Promise<UserRecord> | null {
     const [results] = (await pool.execute(
-      'SELECT * FROM `users` WHERE `current_token_id` = :token;',
+      'SELECT `u`.`id`, `u`.`name`, `u`.`email`, `u`.`current_token_id` AS `currentTokenId`, `u`.`role`, `f`.name AS `family` ' +
+        'FROM `users` AS `u` ' +
+        'INNER JOIN `families` AS `f` ON `u`.family_id = `f`.`id` ' +
+        'WHERE `u`.`current_token_id` = :token;',
       {
         token,
       },
@@ -144,7 +155,10 @@ export class UserRecord {
     password: string,
   ): Promise<UserRecord> | null {
     const [results] = (await pool.execute(
-      'SELECT `id`, `name`, `email`, `current_token_id`, `role` FROM `users` WHERE `email` = :email AND `password_hash` = :passwordHash;',
+      'SELECT `u`.`id`, `u`.`name`, `u`.`email`, `u`.`current_token_id` AS `currentTokenId`, `u`.`role`, `f`.name AS `family` ' +
+        'FROM `users` AS `u` ' +
+        'INNER JOIN `families` AS `f` ON `u`.family_id = `f`.`id` ' +
+        'WHERE `u`.`email` = :email AND `u`.`password_hash` = :passwordHash;',
       {
         email,
         passwordHash: hashPassword(password),

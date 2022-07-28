@@ -2,7 +2,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import 'express-async-errors';
 import './utils/db';
-import './auth/jwt.stategy';
+import './auth/jwt.strategy';
 import { config } from './config/config';
 import { handleError, handleNotFound } from './utils/error';
 import { userRouter } from './routers/user.router';

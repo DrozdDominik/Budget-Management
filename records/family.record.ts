@@ -1,11 +1,10 @@
 import { v4 as uuid } from 'uuid';
-import { FamilyEntityId, NewFamilyEntity } from '../types/family';
+import { NewFamilyEntity } from '../types/family';
 import { AppError } from '../utils/error';
 import { pool } from '../utils/db';
 import { trimAndChangeFirstLetterToUppercaseAndOtherToLowercase } from '../utils/auxiliaryMethods';
 import { FieldPacket, ResultSetHeader } from 'mysql2';
 
-type FamilyEntityResultId = [FamilyEntityId[], FieldPacket[]];
 type FamilyEntityResults = [NewFamilyEntity[], FieldPacket[]];
 
 export class FamilyRecord {
@@ -62,32 +61,23 @@ export class FamilyRecord {
     this.budget = budget;
   }
 
-  public async insert(): Promise<string> {
-    const id = await this.getIdOfFamilyWithGivenName(this.name);
-
-    if (id !== null) {
-      return id;
-    }
-
+  public async insert(): Promise<void> {
     await pool.execute('INSERT INTO `families` VALUES (:id, :name, :budget);', {
       id: this.id,
       name: this.name,
       budget: this.budget,
     });
-    return this.id;
   }
 
-  public async getIdOfFamilyWithGivenName(
+  public static async getFamilyByName(
     name: string,
-  ): Promise<string | null> {
+  ): Promise<FamilyRecord | null> {
     const [results] = (await pool.execute(
-      'SELECT `id` FROM `families` WHERE `name` = :name;',
-      {
-        name: name,
-      },
-    )) as FamilyEntityResultId;
+      'SElECT * FROM `families` WHERE name = :name;',
+      { name: name },
+    )) as FamilyEntityResults;
 
-    return results.length === 0 ? null : results[0].id;
+    return results.length === 0 ? null : new FamilyRecord(results[0]);
   }
 
   public static async getAll(): Promise<FamilyRecord[]> {
