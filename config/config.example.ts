@@ -6,5 +6,6 @@
     dbDatabase: 'database',
     port: 3001,
     passwordSalt: 'salt',
+    JWT_SECRET: 'secret',
 };
  */

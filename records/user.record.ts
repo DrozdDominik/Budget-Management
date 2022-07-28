@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { FieldPacket } from 'mysql2';
+import { FieldPacket, ResultSetHeader } from 'mysql2';
 import { NewUserEntity } from '../types';
 import { AppError } from '../utils/error';
 import { pool } from '../utils/db';
@@ -9,7 +9,7 @@ import {
   isPasswordValid,
 } from '../utils/auxiliaryMethods';
 
-type EmailCheckResults = [NewUserEntity[], FieldPacket[]];
+type UserRecordResults = [NewUserEntity[], FieldPacket[]];
 
 export class UserRecord {
   private readonly id: string;
@@ -69,20 +69,28 @@ export class UserRecord {
     return this.family;
   }
 
-  public async insert(): Promise<string> {
+  get userCurrentTokenId() {
+    return this.currentTokenId;
+  }
 
+  set userCurrentTokenId(tokenId: string | null) {
+    this.currentTokenId = tokenId;
+  }
+
+  public async insert(): Promise<string> {
     if (await this.isEmailTaken(this.email)) {
       throw new AppError(`Email ${this.email} is already taken!`, 400);
     }
 
     await pool.execute(
-      'INSERT INTO `users` VALUES (:id, :name, :email, :family, :password_hash);',
+      'INSERT INTO `users` VALUES (:id, :name, :email, :family, :password_hash, :current_token_id);',
       {
         id: this.id,
         name: this.name,
         email: this.email,
         family: this.family,
         password_hash: this.passwordHash,
+        current_token_id: this.userCurrentTokenId,
       },
     );
     return this.id;
@@ -94,8 +102,33 @@ export class UserRecord {
       {
         email: email,
       },
-    )) as EmailCheckResults;
+    )) as UserRecordResults;
 
     return results.length === 1;
+  }
+
+  public static async findOneByToken(
+    token: string,
+  ): Promise<UserRecord> | null {
+    const [results] = (await pool.execute(
+      'SELECT * FROM `users` WHERE `current_token_id` = :token;',
+      {
+        token,
+      },
+    )) as UserRecordResults;
+
+    return results.length === 0 ? null : new UserRecord(results[0]);
+  }
+
+  public async updateUserTokenId(): Promise<boolean> {
+    const [results] = (await pool.execute(
+      'UPDATE `users` SET `current_token_id` = :token WHERE `id` = :id;',
+      {
+        token: this.userCurrentTokenId,
+        id: this.id,
+      },
+    )) as [ResultSetHeader, FieldPacket[]];
+
+    return results.affectedRows === 1;
   }
 }
