@@ -3,9 +3,10 @@ import { FamilyEntityId, NewFamilyEntity } from '../types/family';
 import { AppError } from '../utils/error';
 import { pool } from '../utils/db';
 import { trimAndChangeFirstLetterToUppercaseAndOtherToLowercase } from '../utils/auxiliaryMethods';
-import { FieldPacket } from 'mysql2';
+import { FieldPacket, ResultSetHeader } from 'mysql2';
 
 type FamilyEntityResultId = [FamilyEntityId[], FieldPacket[]];
+type FamilyEntityResults = [NewFamilyEntity[], FieldPacket[]];
 
 export class FamilyRecord {
   private readonly id: string;
@@ -87,5 +88,34 @@ export class FamilyRecord {
     )) as FamilyEntityResultId;
 
     return results.length === 0 ? null : results[0].id;
+  }
+
+  public static async getAll(): Promise<FamilyRecord[]> {
+    const [results] = (await pool.execute(
+      'SELECT * FROM `families`;',
+    )) as FamilyEntityResults;
+
+    return results.map(result => new FamilyRecord(result));
+  }
+
+  public static async getOne(id: string): Promise<FamilyRecord | null> {
+    const [results] = (await pool.execute(
+      'SElECT * FROM `families` WHERE id = :id;',
+      { id: id },
+    )) as FamilyEntityResults;
+
+    return results.length === 0 ? null : new FamilyRecord(results[0]);
+  }
+
+  public async updateBudget(): Promise<boolean> {
+    const [results] = (await pool.execute(
+      'UPDATE `families` SET `budget` = :budget WHERE id = :id;',
+      {
+        id: this.id,
+        budget: this.budget,
+      },
+    )) as [ResultSetHeader, FieldPacket[]];
+
+    return results.affectedRows === 1;
   }
 }
