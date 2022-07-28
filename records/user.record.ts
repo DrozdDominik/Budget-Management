@@ -131,4 +131,17 @@ export class UserRecord {
 
     return results.affectedRows === 1;
   }
+
+  public static async findOneByCredentials(email: string, password: string): Promise<UserRecord> | null {
+
+    const [results] = (await pool.execute(
+        'SELECT `id`, `name`, `email`, `current_token_id` FROM `users` WHERE `email` = :email AND `password_hash` = :passwordHash;',
+        {
+          email,
+          passwordHash: hashPassword(password),
+        },
+    )) as UserRecordResults;
+
+    return results.length === 0 ? null : new UserRecord(results[0]);
+  }
 }
