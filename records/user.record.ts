@@ -1,4 +1,5 @@
 import { v4 as uuid } from 'uuid';
+import { FieldPacket } from 'mysql2';
 import { NewUserEntity } from '../types';
 import { AppError } from '../utils/error';
 import { pool } from '../utils/db';
@@ -7,6 +8,8 @@ import {
   isEmailValid,
   isPasswordValid,
 } from '../utils/auxiliaryMethods';
+
+type EmailCheckResults = [NewUserEntity[], FieldPacket[]];
 
 export class UserRecord {
   private readonly id: string;
@@ -67,6 +70,11 @@ export class UserRecord {
   }
 
   public async insert(): Promise<string> {
+
+    if (await this.isEmailTaken(this.email)) {
+      throw new AppError(`Email ${this.email} is already taken!`, 400);
+    }
+
     await pool.execute(
       'INSERT INTO `users` VALUES (:id, :name, :email, :family, :password_hash);',
       {
@@ -78,5 +86,16 @@ export class UserRecord {
       },
     );
     return this.id;
+  }
+
+  public async isEmailTaken(email: string): Promise<boolean> {
+    const [results] = (await pool.execute(
+      'SELECT * FROM `users` WHERE `email` = :email;',
+      {
+        email: email,
+      },
+    )) as EmailCheckResults;
+
+    return results.length === 1;
   }
 }
