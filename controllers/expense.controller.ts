@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { UserRecord } from '../records/user.record';
 import { FamilyRecord } from '../records/family.record';
 import { ExpenseRecord } from '../records/expense.record';
-import { NewExpenseEntity } from '../types';
+import { AddExpenseResponse, ExpenseEntity } from '../types';
 import { AppError } from '../utils/error';
 
 export const addExpense = async (req: Request, res: Response) => {
@@ -14,7 +14,7 @@ export const addExpense = async (req: Request, res: Response) => {
 
   family.familyBudget = -amount;
 
-  const expenseData: NewExpenseEntity = {
+  const expenseData: ExpenseEntity = {
     name,
     amount,
     userId: user.userId,
@@ -28,7 +28,10 @@ export const addExpense = async (req: Request, res: Response) => {
     throw new AppError('Sorry update family budget operation failed.', 500);
   }
 
-  res
-    .status(201)
-    .json({ expenseId: expense.expenseId, familyBudget: family.familyBudget });
+  const data: AddExpenseResponse = {
+    expenseId: expense.expenseId,
+    familyBudget: family.familyBudget,
+  };
+
+  res.status(201).json(data);
 };

@@ -1,13 +1,21 @@
 import { Request, Response } from 'express';
 import { UserRecord } from '../records/user.record';
-import { NewUserEntity, UserResponse } from '../types';
+import {
+  NewUserEntity,
+  UserLoginResponse,
+  UserRegisterResponse,
+  UserResponse,
+} from '../types';
 import { AppError } from '../utils/error';
 import { createToken, generateToken, removeToken } from '../auth/token';
 
 export const register = async (req: Request, res: Response) => {
   const user = new UserRecord(req.body as NewUserEntity);
   await user.insert();
-  res.status(201).json({ id: user.userId });
+
+  const response: UserRegisterResponse = { id: user.userId };
+
+  res.status(201).json(response);
 };
 
 export const login = async (req: Request, res: Response) => {
@@ -23,13 +31,15 @@ export const login = async (req: Request, res: Response) => {
   }
   const token = createToken(await generateToken(user));
 
+  const response: UserLoginResponse = { ok: true };
+
   return res
     .cookie('jwt', token.accessToken, {
       secure: false,
       domain: 'localhost',
       httpOnly: true,
     })
-    .json({ ok: true });
+    .json(response);
 };
 
 export const logout = async (req: Request, res: Response) => {

@@ -5,3 +5,11 @@ export interface UserResponse {
   familyName: string;
   budget: number;
 }
+
+export interface UserRegisterResponse {
+  id: string;
+}
+
+export interface UserLoginResponse {
+  ok: true;
+}

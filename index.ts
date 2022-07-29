@@ -14,7 +14,7 @@ import { expenseLimiter, familyLimiter, userLimiter } from './utils/limiter';
 
 const app = express();
 
-app.use(cors({ origin: config.corsOrigin }));
+app.use(cors({ origin: config.corsOrigin, credentials: true }));
 app.use(helmet());
 app.use('/user', userLimiter);
 app.use('/expense', expenseLimiter);

@@ -1,9 +1,9 @@
 import { it, expect, describe } from 'vitest';
 import { faker } from '@faker-js/faker';
-import { NewExpenseEntity } from '../types';
+import { ExpenseEntity } from '../types';
 import { ExpenseRecord } from '../records/expense.record';
 
-const defaultObj: NewExpenseEntity = {
+const defaultObj: ExpenseEntity = {
   name: 'Test',
   amount: 1000,
   userId: faker.datatype.uuid(),
@@ -20,7 +20,7 @@ describe('ExpenseRecord constructor', () => {
   });
 
   it('should throw AppError when provided amount equals zero', () => {
-    const invalidObj: NewExpenseEntity = {
+    const invalidObj: ExpenseEntity = {
       ...defaultObj,
       amount: 0,
     };
@@ -31,7 +31,7 @@ describe('ExpenseRecord constructor', () => {
   });
 
   it('should throw AppError when provided amount greater than 9999999', () => {
-    const invalidObj: NewExpenseEntity = {
+    const invalidObj: ExpenseEntity = {
       ...defaultObj,
       amount: 10000000,
     };

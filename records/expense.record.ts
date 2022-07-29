@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { NewExpenseEntity } from '../types';
+import { ExpenseEntity } from '../types';
 import { AppError } from '../utils/error';
 import { pool } from '../utils/db';
 
@@ -9,7 +9,7 @@ export class ExpenseRecord {
   private amount: number;
   private userId: string;
 
-  constructor(obj: NewExpenseEntity) {
+  constructor(obj: ExpenseEntity) {
     this.id = obj.id ?? uuid();
 
     if (!obj.name || obj.name.length < 2 || obj.name.length > 50) {

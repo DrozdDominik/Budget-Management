@@ -2,6 +2,7 @@ import { Request, RequestHandler, Response } from 'express';
 import { validate } from 'uuid';
 import { FamilyRecord } from '../records/family.record';
 import { AppError } from '../utils/error';
+import { FamilyBudgetResponse } from '../types';
 
 export const getAllFamilies = async (req: Request, res: Response) => {
   const families = await FamilyRecord.getAll();
@@ -32,5 +33,7 @@ export const increaseFamilyBudget: RequestHandler<{ id: string }> = async (
     throw new AppError('Sorry update operation failed.', 500);
   }
 
-  res.json(family);
+  const budget: FamilyBudgetResponse = { budget: family.familyBudget };
+
+  res.json(budget);
 };

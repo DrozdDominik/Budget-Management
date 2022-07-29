@@ -1,4 +1,4 @@
-export interface NewExpenseEntity {
+export interface ExpenseEntity {
   id?: string;
   name: string;
   amount: number;

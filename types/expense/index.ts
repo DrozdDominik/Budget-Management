@@ -1,1 +1,2 @@
-export * from './newExpenseEntity';
+export * from './expense.entity';
+export * from './expense.response';
