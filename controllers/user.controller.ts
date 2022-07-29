@@ -1,9 +1,8 @@
 import { Request, Response } from 'express';
 import { UserRecord } from '../records/user.record';
-import { NewUserEntity } from '../types';
+import { NewUserEntity, UserResponse } from '../types';
 import { AppError } from '../utils/error';
 import { createToken, generateToken, removeToken } from '../auth/token';
-import { UserResponse } from '../types/user/user.response';
 
 export const register = async (req: Request, res: Response) => {
   const user = new UserRecord(req.body as NewUserEntity);

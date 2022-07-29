@@ -1,5 +1,5 @@
 import { it, expect, describe } from 'vitest';
-import { NewFamilyEntity } from '../types/family';
+import { NewFamilyEntity } from '../types';
 import { FamilyRecord } from '../records/family.record';
 
 const defaultObj: NewFamilyEntity = {
