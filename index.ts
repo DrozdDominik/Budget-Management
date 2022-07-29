@@ -7,6 +7,7 @@ import { config } from './config/config';
 import { handleError, handleNotFound } from './utils/error';
 import { userRouter } from './routers/user.router';
 import { familyRouter } from './routers/family.router';
+import { expenseRouter } from './routers/expense.router';
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(cookieParser());
 
 app.use('/user', userRouter);
 app.use('/family', familyRouter);
+app.use('/expense', expenseRouter);
 
 app.use(handleNotFound);
 

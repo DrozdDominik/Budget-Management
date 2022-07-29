@@ -1,5 +1,5 @@
 import { v4 as uuid } from 'uuid';
-import { NewFamilyEntity } from '../types/family';
+import { NewFamilyEntity } from '../types';
 import { AppError } from '../utils/error';
 import { pool } from '../utils/db';
 import { trimAndChangeFirstLetterToUppercaseAndOtherToLowercase } from '../utils/auxiliaryMethods';
