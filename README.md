@@ -17,6 +17,9 @@ Aplikacja frontendowa napisana w React.js dostępna [tutaj](https://github.com/D
 
 ## Uruchomienie
 
-Uruchomienie w trybie deweloperskim za pomocą ### `npm run start:dev`
+Uruchomienie w trybie deweloperskim za pomocą:
+
+### `npm run start:dev`
+
 Przed pierwszym uruchmieniem należy uzupełnić dane w pliku config.example.ts z folderu config.
 Następnie należy zmienić jego nazwę na config.ts
