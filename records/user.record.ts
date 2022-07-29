@@ -115,7 +115,7 @@ export class UserRecord {
     const [results] = (await pool.execute(
       'SELECT * FROM `users` WHERE `email` = :email;',
       {
-        email: email,
+        email,
       },
     )) as UserRecordResults;
 
@@ -166,5 +166,9 @@ export class UserRecord {
     )) as UserRecordResults;
 
     return results.length === 0 ? null : new UserRecord(results[0]);
+  }
+
+  public async findUserFamily(): Promise<FamilyRecord> {
+    return await FamilyRecord.getFamilyByName(this.familyName);
   }
 }
