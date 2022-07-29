@@ -3,6 +3,7 @@ import { UserRecord } from '../records/user.record';
 import { NewUserEntity } from '../types';
 import { AppError } from '../utils/error';
 import { createToken, generateToken, removeToken } from '../auth/token';
+import { UserResponse } from '../types/user/user.response';
 
 export const register = async (req: Request, res: Response) => {
   const user = new UserRecord(req.body as NewUserEntity);
@@ -36,4 +37,20 @@ export const logout = async (req: Request, res: Response) => {
   const user = req.user as UserRecord;
 
   await removeToken(user, res);
+};
+
+export const getUserData = async (req: Request, res: Response) => {
+  const user = req.user as UserRecord;
+
+  const family = await user.findUserFamily();
+
+  const data: UserResponse = {
+    id: user.userId,
+    name: user.userName,
+    familyId: family.familyId,
+    familyName: family.familyName,
+    budget: family.familyBudget,
+  };
+
+  res.json(data);
 };

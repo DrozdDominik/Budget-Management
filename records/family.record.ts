@@ -1,11 +1,10 @@
 import { v4 as uuid } from 'uuid';
-import { FamilyEntityId, NewFamilyEntity } from '../types/family';
+import { NewFamilyEntity } from '../types/family';
 import { AppError } from '../utils/error';
 import { pool } from '../utils/db';
 import { trimAndChangeFirstLetterToUppercaseAndOtherToLowercase } from '../utils/auxiliaryMethods';
 import { FieldPacket, ResultSetHeader } from 'mysql2';
 
-type FamilyEntityResultId = [FamilyEntityId[], FieldPacket[]];
 type FamilyEntityResults = [NewFamilyEntity[], FieldPacket[]];
 
 export class FamilyRecord {
@@ -56,43 +55,44 @@ export class FamilyRecord {
   }
 
   set familyBudget(budget: number) {
-    if (budget < 0 || budget > 9999999) {
-      throw new AppError('Budget must be between 0 and 9999999.', 400);
+    const newBudget = this.budget + budget;
+
+    if (newBudget < 0) {
+      throw new AppError('Not enough money in the budget.', 400);
     }
-    this.budget = budget;
+
+    if (newBudget > 9999999) {
+      throw new AppError('The budget cannot be greater than 9999999', 400);
+    }
+
+    this.budget = newBudget;
   }
 
-  public async insert(): Promise<string> {
-    const id = await this.getIdOfFamilyWithGivenName(this.name);
-
-    if (id !== null) {
-      return id;
-    }
-
+  public async insert(): Promise<void> {
     await pool.execute('INSERT INTO `families` VALUES (:id, :name, :budget);', {
       id: this.id,
       name: this.name,
       budget: this.budget,
     });
-    return this.id;
   }
 
-  public async getIdOfFamilyWithGivenName(
+  public static async getFamilyByName(
     name: string,
-  ): Promise<string | null> {
+  ): Promise<FamilyRecord | null> {
     const [results] = (await pool.execute(
-      'SELECT `id` FROM `families` WHERE `name` = :name;',
-      {
-        name: name,
-      },
-    )) as FamilyEntityResultId;
+      'SElECT * FROM `families` WHERE `name` = :name;',
+      { name },
+    )) as FamilyEntityResults;
 
-    return results.length === 0 ? null : results[0].id;
+    return results.length === 0 ? null : new FamilyRecord(results[0]);
   }
 
   public static async getAll(): Promise<FamilyRecord[]> {
     const [results] = (await pool.execute(
-      'SELECT * FROM `families`;',
+      'SELECT * FROM `families` WHERE `name` != :admin;',
+      {
+        admin: 'Admin',
+      },
     )) as FamilyEntityResults;
 
     return results.map(result => new FamilyRecord(result));
@@ -100,8 +100,8 @@ export class FamilyRecord {
 
   public static async getOne(id: string): Promise<FamilyRecord | null> {
     const [results] = (await pool.execute(
-      'SElECT * FROM `families` WHERE id = :id;',
-      { id: id },
+      'SElECT * FROM `families` WHERE `id` = :id;',
+      { id },
     )) as FamilyEntityResults;
 
     return results.length === 0 ? null : new FamilyRecord(results[0]);
@@ -109,7 +109,7 @@ export class FamilyRecord {
 
   public async updateBudget(): Promise<boolean> {
     const [results] = (await pool.execute(
-      'UPDATE `families` SET `budget` = :budget WHERE id = :id;',
+      'UPDATE `families` SET `budget` = :budget WHERE `id` = :id;',
       {
         id: this.id,
         budget: this.budget,
