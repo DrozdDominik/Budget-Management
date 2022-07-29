@@ -17,8 +17,8 @@ const app = express();
 app.use(cors({ origin: config.corsOrigin }));
 app.use(helmet());
 app.use('/user', userLimiter);
-app.use('/user', expenseLimiter);
-app.use('/user', familyLimiter);
+app.use('/expense', expenseLimiter);
+app.use('/family', familyLimiter);
 
 app.use(express.json());
 app.use(cookieParser());
