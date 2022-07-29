@@ -1,5 +1,7 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import helmet from 'helmet';
 import 'express-async-errors';
 import './utils/db';
 import './auth/jwt.strategy';
@@ -8,8 +10,15 @@ import { handleError, handleNotFound } from './utils/error';
 import { userRouter } from './routers/user.router';
 import { familyRouter } from './routers/family.router';
 import { expenseRouter } from './routers/expense.router';
+import { expenseLimiter, familyLimiter, userLimiter } from './utils/limiter';
 
 const app = express();
+
+app.use(cors({ origin: config.corsOrigin }));
+app.use(helmet());
+app.use('/user', userLimiter);
+app.use('/user', expenseLimiter);
+app.use('/user', familyLimiter);
 
 app.use(express.json());
 app.use(cookieParser());
